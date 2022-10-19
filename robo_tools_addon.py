@@ -33,15 +33,16 @@ class OT_unwrap_white(bpy.types.Operator):
 
 
 
-class OT_unwrap_from_front_view(bpy.types.Operator):
+class OT_unwrap_from_view(bpy.types.Operator):
     """Unraps from View"""
-    bl_idname = "mesh.unwrap_from_front_view"
-    bl_label = "Unwrap from Front View"
+    bl_idname = "mesh.unwrap_from_view"
+    bl_label = "Unwrap from View"
 
     def execute(self, context):
 
         objects = bpy.context.selected_objects
         bpy.context.area.type = 'VIEW_3D'
+        bpy.ops.object.mode_set(mode='OBJECT')
         for self in objects:
             bpy.ops.object.select_all(action='DESELECT')
             bpy.context.view_layer.objects.active = self
@@ -70,7 +71,7 @@ class VIEW3D_PT_RoboTools(bpy.types.Panel):
         
         
         self.layout.operator('mesh.unwrap_white')
-        self.layout.operator('mesh.unwrap_from_front_view')
+        self.layout.operator('mesh.unwrap_from_view')
         self.layout.row()
         self.layout.prop(context.scene, "mytool_color")
         self.layout.row()
@@ -137,7 +138,7 @@ class OT_rec_outside(bpy.types.Operator):
 def register():
     bpy.utils.register_class(OT_unwrap_white)
     bpy.utils.register_class(VIEW3D_PT_RoboTools)
-    bpy.utils.register_class(OT_unwrap_from_front_view)
+    bpy.utils.register_class(OT_unwrap_from_view)
     bpy.utils.register_class(OT_set_brush_color)
     bpy.utils.register_class(SimpleOperator)
     bpy.utils.register_class(OT_rec_outside)
@@ -155,10 +156,11 @@ def register():
 def unregister():
     bpy.utils.unregister_class(OT_unwrap_white)
     bpy.utils.unregister_class(VIEW3D_PT_RoboTools)
-    bpy.utils.unregister_class(OT_unwrap_from_front_view)
+    bpy.utils.unregister_class(OT_unwrap_from_view)
     bpy.utils.unregister_class(OT_set_brush_color)
     bpy.utils.unregister_class(SimpleOperator)
     bpy.utils.unregister_class(OT_rec_outside)
 
     
+
 
