@@ -77,6 +77,8 @@ class VIEW3D_PT_RoboTools(bpy.types.Panel):
         self.layout.row()
         self.layout.operator('object.set_brush_color')
         self.layout.operator('object.rec_outside')
+        self.layout.operator('object.delete_all_materials')
+        self.layout.operator('object.create_vertbw_material')
 
 
 class SimpleOperator(bpy.types.Operator):
@@ -131,8 +133,33 @@ class OT_rec_outside(bpy.types.Operator):
         
         return{'FINISHED'}
 
+class OT_delete_all_materials(bpy.types.Operator):
+    """Delete all Materials from selected objects"""
+    bl_idname = "object.delete_all_materials"
+    bl_label = "Delete all Materials"
 
+    def execute(self, context):
+        objects = bpy.context.selected_objects
+        for obj in objects:
+            obj.select_set(obj.type == "MESH")
+            obj.data.materials.clear()
 
+        return{'FINISHED'}
+
+class OT_create_vertbw_material(bpy.types.Operator):
+    """Create VBW material with gradient texture assigned"""
+    bl_idname = "object.create_vertbw_material"
+    bl_label = "Create VerticalBW Material"
+
+    def execute(self, context):
+        mat = bpy.data.materials.new(name="VerticalBW")
+        mat.use_nodes = True
+        bsdf = mat.node_tree.nodes["Principled BSDF"]
+        texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
+        texImage.image = bpy.data.images.load("D:\VertBW_TEMP.psd")
+        mat.node_tree.links.new(bsdf.inputs['Base Color'], texImage.outputs['Color'])
+
+        return{'FINISHED'}
 
 
 def register():
@@ -142,6 +169,8 @@ def register():
     bpy.utils.register_class(OT_set_brush_color)
     bpy.utils.register_class(SimpleOperator)
     bpy.utils.register_class(OT_rec_outside)
+    bpy.utils.register_class(OT_delete_all_materials)
+    bpy.utils.register_class(OT_create_vertbw_material)
        
         # Register the property per Scene, Object or whatever
     bpy.types.Scene.mytool_color = bpy.props.FloatVectorProperty(
@@ -160,6 +189,9 @@ def unregister():
     bpy.utils.unregister_class(OT_set_brush_color)
     bpy.utils.unregister_class(SimpleOperator)
     bpy.utils.unregister_class(OT_rec_outside)
+    bpy.utils.UNregister_class(OT_delete_all_materials)
+    bpy.utils.unregister_class(OT_create_vertbw_material)
+
 
     
 
