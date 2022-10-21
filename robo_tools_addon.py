@@ -156,7 +156,7 @@ class OT_create_vertbw_material(bpy.types.Operator):
         mat.use_nodes = True
         bsdf = mat.node_tree.nodes["Principled BSDF"]
         texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
-        texImage.image = bpy.data.images.load("D:\VertBW_TEMP.psd")
+        texImage.image = bpy.data.images.load("F:\VerticalBW_TEMP.psd")
         mat.node_tree.links.new(bsdf.inputs['Base Color'], texImage.outputs['Color'])
 
         return{'FINISHED'}
@@ -191,8 +191,3 @@ def unregister():
     bpy.utils.unregister_class(OT_rec_outside)
     bpy.utils.UNregister_class(OT_delete_all_materials)
     bpy.utils.unregister_class(OT_create_vertbw_material)
-
-
-    
-
-
