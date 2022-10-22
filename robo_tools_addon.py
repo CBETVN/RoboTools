@@ -1,4 +1,5 @@
 import bpy
+import addon_utils
 
 bl_info = {
     "name" : "robo_tools_addon",
@@ -116,7 +117,11 @@ class OT_rec_outside(bpy.types.Operator):
     bl_label = "Recalculate Outside"
 
     def execute(self, context):
+        #Iterates over all objects in the scene
         objects = bpy.context.scene.objects
+        #Gets Selected Objects if there are any
+        so = bpy.context.selected_objects
+        #Toggles off Face Orientation mode
         if bpy.context.space_data.overlay.show_face_orientation == True:
             bpy.context.space_data.overlay.show_face_orientation = False
         
@@ -124,6 +129,10 @@ class OT_rec_outside(bpy.types.Operator):
 
             for obj in objects:
                 obj.select_set(obj.type == "MESH")
+
+            for o in so:
+                if o.type != "MESH":
+                    o.select_set(False)       
 
             bpy.context.space_data.overlay.show_face_orientation = True
             bpy.ops.object.mode_set(mode='EDIT')
@@ -141,23 +150,83 @@ class OT_delete_all_materials(bpy.types.Operator):
     def execute(self, context):
         objects = bpy.context.selected_objects
         for obj in objects:
-            obj.select_set(obj.type == "MESH")
-            obj.data.materials.clear()
+            if obj.type == "MESH":
+                obj.data.materials.clear()
 
         return{'FINISHED'}
 
 class OT_create_vertbw_material(bpy.types.Operator):
-    """Create VBW material with gradient texture assigned"""
+    """Create and assign VBWmaterial to selected objects"""
     bl_idname = "object.create_vertbw_material"
-    bl_label = "Create VerticalBW Material"
-
+    bl_label = "Create and Assign VBW Mat"
+    
     def execute(self, context):
-        mat = bpy.data.materials.new(name="VerticalBW")
+        matname = "VerticalBW"
+        vbw =  None       
+        objects = bpy.context.selected_objects
+        addon = "robo_tools_addon"
+        addonpath = None
+
+        for mod in addon_utils.modules():
+            if mod.bl_info['name'] == "robo_tools_addon":
+                addonpath = mod.__file__
+
+
+        vbwpath = addonpath.replace('robo_tools_addon.py', '')
+        texturepath = vbwpath+"VerticalBW.png"
+         
+
+
+
+
+        #If There arent any materials create VBW material
+        # x = len(bpy.data.materials)
+        # if x < 1:
+        #     bpy.data.materials.new(name=matname)
+        #     bpy.data.materials["VerticalBW"].use_nodes = True
+        bpy.data.materials.new(name=matname)
+        mat = bpy.data.materials["VerticalBW"]
         mat.use_nodes = True
         bsdf = mat.node_tree.nodes["Principled BSDF"]
+        
+        for i in bpy.data.materials["VerticalBW"].node_tree.nodes:
+            if  i.type == "TEX_IMAGE":
+                bpy.data.materials["VerticalBW"].node_tree.nodes.remove(i)
+        
         texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
-        texImage.image = bpy.data.images.load("F:\VerticalBW_TEMP.psd")
+
+
+        for i in bpy.data.images:
+    
+            if matname in i.name:
+                bpy.data.images.remove(i) 
+
+        
+        
+        for i in bpy.data.images:
+            if i.name != "VerticalBW.png":
+                bpy.data.images.load(texturepath)
+                break
+         
+
+        # texImage.image = bpy.data.images.load(texturepath)
+        texImage.image = bpy.data.images["VerticalBW.png"]
         mat.node_tree.links.new(bsdf.inputs['Base Color'], texImage.outputs['Color'])
+
+        
+
+
+
+        #Remove all materials except "VerticalBW"
+        for i in bpy.data.materials:
+            if str(matname) != i.name:
+                bpy.data.materials.remove(i)
+
+        #Clear slots of selected 'Mesh' objects then assign "VerticalBW"Material"
+        for o in objects:
+            if o.type == "MESH":
+                o.data.materials.clear()
+                o.data.materials.append(bpy.data.materials["VerticalBW"])  
 
         return{'FINISHED'}
 
