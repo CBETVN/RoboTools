@@ -18,6 +18,15 @@ class OT_unwrap_white(bpy.types.Operator):
     bl_label = "Unwrap White"
 
     def execute(self, context):
+
+        #Change the shadind type to "Material Preview"
+        for window in bpy.context.window_manager.windows:
+            for area in window.screen.areas: # iterate through areas in current screen
+                if area.type == 'VIEW_3D':
+                    for space in area.spaces: # iterate through spaces in current VIEW_3D area
+                        if space.type == 'VIEW_3D': # check if space is a 3D view
+                            space.shading.type = 'MATERIAL'
+
         currentSpace = bpy.context.area.type
         bpy.ops.object.mode_set(mode='EDIT')
         # bpy.context.area.type = 'VIEW_3D'
@@ -40,6 +49,14 @@ class OT_unwrap_from_view(bpy.types.Operator):
     bl_label = "Unwrap from View"
 
     def execute(self, context):
+
+        #Change the shadind type to "Material Preview"
+        for window in bpy.context.window_manager.windows:
+            for area in window.screen.areas: # iterate through areas in current screen
+                if area.type == 'VIEW_3D':
+                    for space in area.spaces: # iterate through spaces in current VIEW_3D area
+                        if space.type == 'VIEW_3D': # check if space is a 3D view
+                            space.shading.type = 'MATERIAL'
 
         objects = bpy.context.selected_objects
         bpy.context.area.type = 'VIEW_3D'
@@ -70,7 +87,7 @@ class VIEW3D_PT_RoboTools(bpy.types.Panel):
 
     def draw(self, context):
         
-        
+
         self.layout.operator('mesh.unwrap_white')
         self.layout.operator('mesh.unwrap_from_view')
         self.layout.row()
@@ -100,6 +117,17 @@ class OT_set_brush_color(bpy.types.Operator):
     bl_label = "Set Vertex Color"
 
     def execute(self, context):
+
+        #Change the shadind type to "SOLID"
+        for window in bpy.context.window_manager.windows:
+            for area in window.screen.areas: # iterate through areas in current screen
+                if area.type == 'VIEW_3D':
+                    for space in area.spaces: # iterate through spaces in current VIEW_3D area
+                        if space.type == 'VIEW_3D': # check if space is a 3D view
+                            space.shading.type = 'SOLID'
+
+
+
         currentSpace = bpy.context.area.type                
         clr = context.scene.mytool_color
         bpy.data.brushes["Draw"].color = (clr[0], clr[1], clr[2])
@@ -158,7 +186,7 @@ class OT_delete_all_materials(bpy.types.Operator):
 class OT_create_vertbw_material(bpy.types.Operator):
     """Create and assign VBWmaterial to selected objects"""
     bl_idname = "object.create_vertbw_material"
-    bl_label = "Create and Assign VBW Mat"
+    bl_label = "Assign VerticalBW Mat"
     
     def execute(self, context):
         matname = "VerticalBW"
@@ -175,15 +203,17 @@ class OT_create_vertbw_material(bpy.types.Operator):
         vbwpath = addonpath.replace('robo_tools_addon.py', '')
         texturepath = vbwpath+"VerticalBW.png"
          
-
-
+        #Change the shadind type to "Material Preview"
+        for window in bpy.context.window_manager.windows:
+            for area in window.screen.areas: # iterate through areas in current screen
+                if area.type == 'VIEW_3D':
+                    for space in area.spaces: # iterate through spaces in current VIEW_3D area
+                        if space.type == 'VIEW_3D': # check if space is a 3D view
+                            space.shading.type = 'MATERIAL'
 
 
         #If There arent any materials create VBW material
-        # x = len(bpy.data.materials)
-        # if x < 1:
-        #     bpy.data.materials.new(name=matname)
-        #     bpy.data.materials["VerticalBW"].use_nodes = True
+
         bpy.data.materials.new(name=matname)
         mat = bpy.data.materials["VerticalBW"]
         mat.use_nodes = True
@@ -195,7 +225,7 @@ class OT_create_vertbw_material(bpy.types.Operator):
         
         texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
 
-
+        # Search and remove loaded duplicates of "VerticalBW" texture
         for i in bpy.data.images:
     
             if matname in i.name:
@@ -241,7 +271,7 @@ def register():
     bpy.utils.register_class(OT_delete_all_materials)
     bpy.utils.register_class(OT_create_vertbw_material)
        
-        # Register the property per Scene, Object or whatever
+    # Register the property per Scene, Object or whatever
     bpy.types.Scene.mytool_color = bpy.props.FloatVectorProperty(
                  name = "Color Picker",
                  subtype = "COLOR",
