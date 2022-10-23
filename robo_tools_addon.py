@@ -133,6 +133,7 @@ class OT_set_brush_color(bpy.types.Operator):
         bpy.data.brushes["Draw"].color = (clr[0], clr[1], clr[2])
         bpy.context.space_data.shading.color_type = 'VERTEX'
         bpy.ops.object.mode_set(mode='VERTEX_PAINT')
+        bpy.ops.wm.tool_set_by_id(name="builtin_brush.Draw")
         bpy.context.object.data.use_paint_mask_vertex = True
         bpy.ops.paint.vertex_color_set()
         bpy.ops.object.mode_set(mode='EDIT')
