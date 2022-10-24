@@ -23,9 +23,11 @@ class OT_unwrap_white(bpy.types.Operator):
         for window in bpy.context.window_manager.windows:
             for area in window.screen.areas: # iterate through areas in current screen
                 if area.type == 'VIEW_3D':
+                    #bpy.ops.object.mode_set(mode='EDIT')
                     for space in area.spaces: # iterate through spaces in current VIEW_3D area
                         if space.type == 'VIEW_3D': # check if space is a 3D view
                             space.shading.type = 'MATERIAL'
+                            #bpy.ops.object.mode_set(mode='EDIT')
 
         currentSpace = bpy.context.area.type
         bpy.ops.object.mode_set(mode='EDIT')
@@ -97,6 +99,7 @@ class VIEW3D_PT_RoboTools(bpy.types.Panel):
         self.layout.operator('object.rec_outside')
         self.layout.operator('object.delete_all_materials')
         self.layout.operator('object.create_vertbw_material')
+        self.layout.operator('object.origin_to_selected')
 
 
 class SimpleOperator(bpy.types.Operator):
@@ -183,6 +186,41 @@ class OT_delete_all_materials(bpy.types.Operator):
                 obj.data.materials.clear()
 
         return{'FINISHED'}
+
+
+
+
+class OT_origin_to_selected(bpy.types.Operator):
+    """Set origin to selected"""
+    bl_idname = "object.origin_to_selected"
+    bl_label = "Origin to Selected"
+
+    def execute(self, context):
+        #Some stackoverflow Ju Ju Magic
+        cursorloc = [bpy.context.scene.cursor.location[0], bpy.context.scene.cursor.location[1], bpy.context.scene.cursor.location[2]]
+        for area in bpy.context.screen.areas:
+            if area.type == 'VIEW_3D':
+                override = bpy.context.copy()
+                override['area'] = area
+                override['region'] = area.regions[4]
+                bpy.ops.view3d.snap_cursor_to_selected(override)
+                bpy.ops.object.mode_set(mode='OBJECT')
+                bpy.ops.object.origin_set(type='ORIGIN_CURSOR', center='MEDIAN')
+                break
+
+
+
+        bpy.context.scene.cursor.location = (cursorloc)
+
+        return{'FINISHED'}
+
+
+
+
+
+
+
+
 
 class OT_create_vertbw_material(bpy.types.Operator):
     """Create and assign VBWmaterial to selected objects"""
@@ -271,6 +309,7 @@ def register():
     bpy.utils.register_class(OT_rec_outside)
     bpy.utils.register_class(OT_delete_all_materials)
     bpy.utils.register_class(OT_create_vertbw_material)
+    bpy.utils.register_class(OT_origin_to_selected)
        
     # Register the property per Scene, Object or whatever
     bpy.types.Scene.mytool_color = bpy.props.FloatVectorProperty(
@@ -291,3 +330,4 @@ def unregister():
     bpy.utils.unregister_class(OT_rec_outside)
     bpy.utils.UNregister_class(OT_delete_all_materials)
     bpy.utils.unregister_class(OT_create_vertbw_material)
+    bpy.utils.unregister_class(OT_origin_to_selected)
