@@ -100,6 +100,8 @@ class VIEW3D_PT_RoboTools(bpy.types.Panel):
         self.layout.operator('object.delete_all_materials')
         self.layout.operator('object.create_vertbw_material')
         self.layout.operator('object.origin_to_selected')
+        self.layout.operator('mesh.orientation_from_normals')
+
 
 
 class SimpleOperator(bpy.types.Operator):
@@ -300,6 +302,38 @@ class OT_create_vertbw_material(bpy.types.Operator):
         return{'FINISHED'}
 
 
+
+
+
+
+
+
+class OT_orientation_from_normals(bpy.types.Operator):
+    """Orients pivot along normals"""
+    bl_idname = "mesh.orientation_from_normals"
+    bl_label = "Orientation from Normals"
+
+    def execute(self, context):
+        cursorloc = [bpy.context.scene.cursor.location[0], bpy.context.scene.cursor.location[1], bpy.context.scene.cursor.location[2]]
+        bpy.ops.view3d.snap_cursor_to_selected()
+        bpy.context.scene.transform_orientation_slots[0].type = 'NORMAL'
+        bpy.ops.transform.create_orientation(use=True)
+        newto = str(bpy.context.scene.transform_orientation_slots[0].type)
+        bpy.ops.object.editmode_toggle()
+        
+        bpy.ops.object.origin_set(type='ORIGIN_CURSOR', center='MEDIAN')
+        bpy.ops.wm.tool_set_by_id(name='builtin.move')
+        bpy.context.scene.tool_settings.use_transform_data_origin = True
+        bpy.ops.transform.transform(mode='ALIGN', value=(0, 0, 0, 0), orient_type= newto, orient_matrix_type= newto, mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False)
+
+        bpy.context.scene.transform_orientation_slots[0].type = newto
+        bpy.ops.transform.delete_orientation()
+        bpy.context.scene.transform_orientation_slots[0].type = 'LOCAL'
+        bpy.context.scene.tool_settings.use_transform_data_origin = False
+        bpy.context.scene.cursor.location = (cursorloc)
+        return{'FINISHED'}        
+
+
 def register():
     bpy.utils.register_class(OT_unwrap_white)
     bpy.utils.register_class(VIEW3D_PT_RoboTools)
@@ -310,6 +344,7 @@ def register():
     bpy.utils.register_class(OT_delete_all_materials)
     bpy.utils.register_class(OT_create_vertbw_material)
     bpy.utils.register_class(OT_origin_to_selected)
+    bpy.utils.register_class(OT_orientation_from_normals)
        
     # Register the property per Scene, Object or whatever
     bpy.types.Scene.mytool_color = bpy.props.FloatVectorProperty(
@@ -331,3 +366,4 @@ def unregister():
     bpy.utils.UNregister_class(OT_delete_all_materials)
     bpy.utils.unregister_class(OT_create_vertbw_material)
     bpy.utils.unregister_class(OT_origin_to_selected)
+    bpy.utils.unregister_class(OT_orientation_from_normals)
