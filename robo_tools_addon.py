@@ -12,6 +12,48 @@ bl_info = {
     "category" : "Generic"
 }
 
+
+
+class VIEW3D_PT_RoboTools(bpy.types.Panel):
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "Robo Tools"
+    bl_label = "Robo Tools"
+
+    def draw(self, context):
+        
+
+        self.layout.operator('mesh.unwrap_white')
+        self.layout.operator('mesh.unwrap_from_view')
+        self.layout.row()
+        self.layout.prop(context.scene, "mytool_color")
+        self.layout.row()
+        self.layout.operator('object.set_brush_color')
+        self.layout.operator('object.rec_outside')
+        self.layout.operator('object.delete_all_materials')
+        self.layout.operator('object.create_vertbw_material')
+        self.layout.operator('object.origin_to_selected')
+        self.layout.operator('mesh.orientation_from_normals')
+        self.layout.operator('panel.panelthree')
+        props = bpy.context.scene.TextField
+        layout = self.layout
+
+        col = layout.column(align=True)
+        rowsub = col.row(align=True)
+
+        rowsub.label(text="Pick a name")
+
+        rowsub = col.row(align=True)
+        col2 = layout.column()
+        rowsub2 = col2.row()
+        rowsub2.operator("object.select_by_query", text="Rename")
+        rowsub.prop(props, "newname", text="")
+
+
+
+
+
+
 class OT_unwrap_white(bpy.types.Operator):
     """Unwrap in the whitest area of the BW Gradient"""
     bl_idname = "mesh.unwrap_white"
@@ -79,29 +121,27 @@ class OT_unwrap_from_view(bpy.types.Operator):
         
         return {'FINISHED'}     
 
+    
+class TextField(bpy.types.PropertyGroup):
+
+    newname: bpy.props.StringProperty(default="Part")
 
 
-class VIEW3D_PT_RoboTools(bpy.types.Panel):
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_category = "Robo Tools"
-    bl_label = "Tools"
+class RenameObjects(bpy.types.Operator):
 
-    def draw(self, context):
+    bl_idname = "object.select_by_query"
+    bl_label = "Selection of object by query"
+
+    def execute(self, context):
+        print(bpy.context.scene.TextField.newname)
         
+        objects = bpy.context.selected_objects
+        
+        
+        for (i,o) in enumerate(objects):
+            o.name = bpy.context.scene.TextField.newname+"{:03d}".format(i+1)
 
-        self.layout.operator('mesh.unwrap_white')
-        self.layout.operator('mesh.unwrap_from_view')
-        self.layout.row()
-        self.layout.prop(context.scene, "mytool_color")
-        self.layout.row()
-        self.layout.operator('object.set_brush_color')
-        self.layout.operator('object.rec_outside')
-        self.layout.operator('object.delete_all_materials')
-        self.layout.operator('object.create_vertbw_material')
-        self.layout.operator('object.origin_to_selected')
-        self.layout.operator('mesh.orientation_from_normals')
-
+        return {'FINISHED'}
 
 
 class SimpleOperator(bpy.types.Operator):
@@ -334,17 +374,23 @@ class OT_orientation_from_normals(bpy.types.Operator):
         return{'FINISHED'}        
 
 
+
+classes = (
+    TextField, RenameObjects, OT_unwrap_white,VIEW3D_PT_RoboTools, OT_unwrap_from_view, OT_set_brush_color, 
+    SimpleOperator, OT_rec_outside, OT_delete_all_materials, OT_create_vertbw_material, 
+    OT_origin_to_selected, OT_orientation_from_normals)
+
+
+
+
+
 def register():
-    bpy.utils.register_class(OT_unwrap_white)
-    bpy.utils.register_class(VIEW3D_PT_RoboTools)
-    bpy.utils.register_class(OT_unwrap_from_view)
-    bpy.utils.register_class(OT_set_brush_color)
-    bpy.utils.register_class(SimpleOperator)
-    bpy.utils.register_class(OT_rec_outside)
-    bpy.utils.register_class(OT_delete_all_materials)
-    bpy.utils.register_class(OT_create_vertbw_material)
-    bpy.utils.register_class(OT_origin_to_selected)
-    bpy.utils.register_class(OT_orientation_from_normals)
+    from bpy.utils import register_class
+    for cls in classes:
+        register_class(cls)
+    # Register TextField
+    bpy.types.Scene.TextField = bpy.props.PointerProperty(type=TextField)
+
        
     # Register the property per Scene, Object or whatever
     bpy.types.Scene.mytool_color = bpy.props.FloatVectorProperty(
@@ -357,13 +403,23 @@ def register():
 
 
 def unregister():
-    bpy.utils.unregister_class(OT_unwrap_white)
-    bpy.utils.unregister_class(VIEW3D_PT_RoboTools)
-    bpy.utils.unregister_class(OT_unwrap_from_view)
-    bpy.utils.unregister_class(OT_set_brush_color)
-    bpy.utils.unregister_class(SimpleOperator)
-    bpy.utils.unregister_class(OT_rec_outside)
-    bpy.utils.UNregister_class(OT_delete_all_materials)
-    bpy.utils.unregister_class(OT_create_vertbw_material)
-    bpy.utils.unregister_class(OT_origin_to_selected)
-    bpy.utils.unregister_class(OT_orientation_from_normals)
+    from bpy.utils import unregister_class
+    for cls in classes:
+        unregister_class(cls)
+    # $ delete TextField on unregister
+    del(bpy.types.Scene.TextField) 
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
