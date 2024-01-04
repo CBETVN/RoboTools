@@ -1,8 +1,21 @@
 import bpy
 import addon_utils
+import bpy.utils.previews
+import os
+icons_dict = bpy.utils.previews.new()
+
+
+
+#### This  works  in  the  script  editor ###
+# script_path = bpy.context.space_data.text.filepath
+# icons_dir = os.path.join(os.path.dirname(script_path), "icons")
+#### This  works  in  addon ###
+icons_dir = os.path.join(os.path.dirname(__file__), "icons")
+icons_dict.load("custom_icon", os.path.join(icons_dir, "RoboToolsIcon.png"), 'IMAGE')
+
 
 bl_info = {
-    "name" : "robo_tools_addon",
+    "name" : "robo_tools",
     "author" : "CBETVN",
     "description" : "",
     "blender" : (3, 00  , 0),
@@ -22,7 +35,8 @@ class VIEW3D_PT_RoboTools(bpy.types.Panel):
 
     def draw(self, context):
         
-
+        layout = self.layout
+        layout.template_icon(icon_value=icons_dict["custom_icon"].icon_id, scale=8)
         self.layout.operator('mesh.unwrap_white')
         self.layout.operator('mesh.unwrap_from_view')
         self.layout.row()
@@ -80,7 +94,7 @@ class OT_unwrap_white(bpy.types.Operator):
         bpy.context.area.ui_type = 'UV'
         bpy.ops.uv.select_all(action='SELECT')
         bpy.ops.uv.weld()
-        bpy.ops.transform.translate(value=(0, 0.49, 0), orient_axis_ortho='X', orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False)
+        bpy.ops.transform.translate(value=(0, 0.49, 0),  orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', mirror=False, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False)
         bpy.context.area.type = currentSpace
         # bpy.ops.object.editmode_toggle()
         return {'FINISHED'} 
