@@ -15,7 +15,7 @@ icons_dict.load("custom_icon", os.path.join(icons_dir, "RoboToolsIcon.png"), 'IM
 
 
 bl_info = {
-    "name" : "robo_tools",
+    "name" : "robo_tools_addon",
     "author" : "CBETVN",
     "description" : "",
     "blender" : (3, 00  , 0),
