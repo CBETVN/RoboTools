@@ -4,20 +4,33 @@ import bgl
 from gpu_extras.batch import batch_for_shader
 import addon_utils
 import os
+import bpy.utils.previews
+icons_dict = bpy.utils.previews.new()
+
+
+script_path = bpy.context.space_data.text.filepath
+icons_dir = os.path.join(os.path.dirname(script_path), "icons")
+icons_dict.load("custom_icon", os.path.join(icons_dir, "test.png"), 'IMAGE')
+
+
 
 class VIEW3D_PT_RoboTools(bpy.types.Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = "Robo Tools"
-    bl_label = "Robo Tools"
+    bl_category = "Test Panel"
+    bl_label = "Test Panel"
 
     def draw(self, context):
         
-#        image_user = bpy.types.ImageTexture.image_user
-        my_icon = bpy.data.images.load("C:/Users/sssto/OneDrive/Desktop/test.png")
+
+#        my_icon = bpy.data.images.load("C:/Users/sssto/OneDrive/Desktop/test.png")
         layout = self.layout
-#        layout.template_icon(icon_value=1, scale=6)
-        layout.template_image(my_icon, 'object.VIEW3D_PT_RoboTools',image_user, compact=False, multiview=False)    
+#        layout.template_image(my_icon, 'object.VIEW3D_PT_RoboTools',image_user, compact=False, multiview=False)
+        
+        
+ 
+        layout.template_icon(icon_value=icons_dict["custom_icon"].icon_id, scale=8)
+   
         
         
 
