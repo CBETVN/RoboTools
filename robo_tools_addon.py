@@ -184,18 +184,31 @@ class OT_set_brush_color(bpy.types.Operator):
                     for space in area.spaces: # iterate through spaces in current VIEW_3D area
                         if space.type == 'VIEW_3D': # check if space is a 3D view
                             space.shading.type = 'SOLID'
+        ###Manage the selections in order to use the bpy.ops on each one separately:
+        ###1.Deselect all once you get the selected ones.
+        ###2.Select before using bpy.ops and deselect after that.
+        sel_objs = [obj for obj in bpy.context.selected_objects if obj.type == 'MESH']
 
+        for obj in sel_objs: # <<<<<<<<<<
+            obj.select_set(False) # <<<<<<<<<<
 
+        while len(sel_objs) >= 1:  
+                          
+            obj1 = sel_objs.pop() 
+            
+            obj1.select_set(True)
+            bpy.context.view_layer.objects.active = obj1
+            clr = context.scene.mytool_color
+            bpy.data.brushes["Draw"].color = (clr[0], clr[1], clr[2])
+            bpy.ops.object.editmode_toggle() 
+#            currentSpace = bpy.context.area.type                
 
-        currentSpace = bpy.context.area.type                
-        clr = context.scene.mytool_color
-        bpy.data.brushes["Draw"].color = (clr[0], clr[1], clr[2])
-        bpy.context.space_data.shading.color_type = 'VERTEX'
-        bpy.ops.object.mode_set(mode='VERTEX_PAINT')
-        bpy.ops.wm.tool_set_by_id(name="builtin_brush.Draw")
-        bpy.context.object.data.use_paint_mask_vertex = True
-        bpy.ops.paint.vertex_color_set()
-        bpy.ops.object.mode_set(mode='EDIT')
+            bpy.context.space_data.shading.color_type = 'VERTEX'
+            bpy.ops.object.mode_set(mode='VERTEX_PAINT')
+            bpy.ops.wm.tool_set_by_id(name="builtin_brush.Draw")
+            bpy.context.object.data.use_paint_mask_vertex = True
+            bpy.ops.paint.vertex_color_set()
+            bpy.ops.object.mode_set(mode='EDIT')
 
         return {'FINISHED'}  
 
@@ -425,7 +438,8 @@ def unregister():
 
     
     
-
+if __name__ == "__main__":
+    register()
     
     
     
