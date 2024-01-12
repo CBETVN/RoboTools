@@ -209,9 +209,9 @@ class OT_set_brush_color(bpy.types.Operator):
             bpy.context.object.data.use_paint_mask_vertex = True
             bpy.ops.paint.vertex_color_set()
             bpy.ops.object.mode_set(mode='EDIT')
-            sel_objs.clear()
 
 
+        sel_objs.clear()
         return {'FINISHED'}  
 
 class OT_rec_outside(bpy.types.Operator):
